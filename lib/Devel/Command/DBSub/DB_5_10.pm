@@ -20,6 +20,8 @@ sub import {
 no strict;
 no warnings;
 
+package DB;
+
 sub alt_510_DB {
 
     # lock the debugger and get the thread id for the prompt

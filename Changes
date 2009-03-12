@@ -1,5 +1,9 @@
 Revision history for Perl extension Devel::Command.
 
+0.11 Wed Feb 20 15:58:05 PST 2008
+	- Move stuff out of the DB namespace to prevent indexing errors
+	- Fix 5.10 patch plugin to return the proper subref
+
 0.10 Tue Feb 19 12:53:19 PST 2008
 	- Added 5.11 support (same as 5.10 right now)
 
