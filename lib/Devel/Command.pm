@@ -7,7 +7,7 @@ use Module::Pluggable search_path=>["Devel::Command"], require=>1;
 use Module::Pluggable search_path=>['Devel::Command::DBSub'], 
                       sub_name => 'DB_subs';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 sub import {
   # Find and install all the plugins.

@@ -3,7 +3,10 @@ package Devel::Command::DBSub::DB_5_10;
 sub import {
   if (my($sub_version) = 
         # 5.9.5's debugger is based on the 5.10 release.
-        ($] =~ /^5.010(.*)/ or $] =~ /^5.009005/)
+        # 5.11 is (so far) based on 5.10 as well.
+        ($] =~ /^5.010(.*)/ or
+         $] =~ /^5.011(.*)/ or 
+         $] =~ /^5.009005/)
      ) {
       return \&DB::alt_510_DB;
     }
