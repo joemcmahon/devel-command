@@ -8,6 +8,7 @@ WriteMakefile(
     PREREQ_PM         => {
 	                   'Module::Pluggable' => 0,
 			   'Test::More' => 0,
+			   'GraphViz::Data::Structure' => 0, 
                          }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (AUTHOR         => 'Joe McMahon <mcmahon@ibiblio.org>') : ()),

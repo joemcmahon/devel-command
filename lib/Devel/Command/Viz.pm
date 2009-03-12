@@ -1,15 +1,23 @@
-package Devel::Command::HelloWorld;
+package Devel::Command::Viz;
 
 use 5.006;
 use strict;
 use warnings;
+use GraphViz::Data::Structure;
+use File::Temp qw(tempfile);
 
 use base qw(Devel::Command);
 
 our $VERSION = '0.01';
 
 sub command {
-  print DB::OUT "Hello world!\n";
+  my ($arg) = (shift =~ /viz\s+(.*)/);
+  chomp $arg;
+  my $gvds = new GraphViz::Data::Structure(&eval($arg));
+  my ($fh, $filename) = tempfile();
+  print $fh $gvds->graph->as_canon;
+  close $fh;
+  system "dotty $filename";
   1;
 }
 

@@ -1,15 +1,23 @@
-package Devel::Command::HelloWorld;
+package Devel::Command::Tdump;
 
 use 5.006;
 use strict;
 use warnings;
+use Devel::TestEmbed;
+use File::Temp qw(tempfile);
 
 use base qw(Devel::Command);
 
 our $VERSION = '0.01';
 
+sub afterinit {
+  push @DB::typeahead, "use Test::More qw(no_plan)";
+}
+
 sub command {
-  print DB::OUT "Hello world!\n";
+  my ($arg) = (shift =~ /tdump\s+(.*)/);
+  chomp $arg;
+  DB::tdump($arg);
   1;
 }
 

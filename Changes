@@ -1,9 +1,15 @@
 Revision history for Perl extension Devel::Command.
 
+0.03  Sun Jun 26 16:02:23 2005
+	- altered command parse code to get rid of double eval of command
+        - got 'viz' command working
+        - added 'cmds' command (lists commands)
+
 0.02  Wed Jun 22 12:26:07 2005
 	- now actually working
 	- plugins supported
 	- actual code all moved to import for more magical functioning
+        - eliminated need to call new and install in afterinit()
 
 0.01  Thu Jun  9 09:50:50 2005
 	- original version; created by h2xs 1.23 with options

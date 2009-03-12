@@ -5,20 +5,47 @@ use warnings;
 
 use Module::Pluggable search_path=>["Devel::Command"], require=>1;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub import {
   my @plugins = __PACKAGE__->plugins;
   foreach my $plugin (@plugins) {
     my($cmd_name, $cmd_ref) = $plugin->signature();
     $DB::commands{$cmd_name} = $cmd_ref;
+    {
+      no  strict 'refs';
+      *{$plugin."::eval"} = \&eval;
+    }
   }
+  $DB::commands{"cmds"} = \&cmds;
   my $count = scalar @plugins;
   {
     no warnings;
     *DB::DB = \&DB::alt_DB;
   }
 }
+
+sub cmds {
+  for my $key (keys %DB::commands) {
+    print DB::OUT $key,"\n";
+  }
+  1;
+}
+
+sub DB::afterinit {
+  my @plugins = __PACKAGE__->plugins;
+  foreach my $plugin (@plugins) {
+    $plugin->afterinit if $plugin->can('afterinit');
+  }
+}
+
+# subs exported into plugins
+sub eval {
+  my  $arg = shift;
+  $DB::evalarg = $arg;
+  DB::eval();
+}
+
 
 # subs inherited by subclasses
 sub signature {
@@ -515,10 +542,10 @@ Define your extended commands in C<%commands> at the top of the file.
 This section runs them.
 
 =cut
-
                foreach my $do (keys %DB::commands) {
                  next unless $cmd =~ /^$do\s*/;
-                 $commands{$do}->($cmd);
+                 $commands{$do}->($cmd)
+		   ? next CMD : last CMD;
                }
 
 =head4 C<q> - quit
