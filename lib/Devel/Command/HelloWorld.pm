@@ -12,7 +12,6 @@ sub command {
   print DB::OUT "Hello world!\n";
 }
 
-#sub signature { ("helloworld",\&command) }
 1;
 __END__
 

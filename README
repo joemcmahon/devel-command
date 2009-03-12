@@ -1,4 +1,4 @@
-Devel-Command version 0.01
+Devel-Command version 0.02
 ==========================
 
 Devel::Command is used to automatically find and load debugger command
@@ -18,18 +18,30 @@ To install this module type the following:
    make test
    make install
 
+Then place the following in your .perldb file (or equivalent on
+your platform):
+
+   use Devel::Command;
+
+That's it. Devel::Command will find all of the command plugins
+in the Devel::Command:: namespace and load them for you.
+
 DEPENDENCIES
 
 This module requires these other modules and libraries:
 
 Module::Pluggable, Test::More
 
+The substitute debugger command loop contained in this module
+is compatible with Perl 5.8.6; it may or may not work with
+earlier or later Perls. If this module is of use to you, please
+write to me; I will lobby to have this functionality be part of
+the core debugger if there's enough interest.
+
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2005 by Joe McMahon
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.6.0 or,
+it under the same terms as Perl itself, either Perl version 5.8.6 or,
 at your option, any later version of Perl 5 you may have available.
-
-
