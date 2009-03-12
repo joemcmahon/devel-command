@@ -1,33 +1,30 @@
-package Devel::Command::DBSub::DB_5_8_5;
+package Devel::Command::DBSub::DB_5_10;
 
 sub import {
   if (my($sub_version) = 
-          # 5.9.1 is also this version of the debugger
-          ($] =~ /^5.008(.*)/ or
-           $] eq '5.009001'
-          )
+        # 5.9.5's debugger is based on the 5.10 release.
+        ($] =~ /^5.010(.*)/ or $] =~ /^5.009005/)
      ) {
-    # This module might work.
-    if ($sub_version+0 <= 5) {
-      return \&DB::alt_585_DB;
+      return \&DB::alt_510_DB;
     }
     else {
-      # Not 5.8.5 or less.
-      return;
-    }
-  }
-  else {
-    # not 5.8 at all.
-    return;
+      # Not 5.10 or 5.9.5.
+      return undef;
   }
 }
 
 {
 no strict;
 no warnings;
-package DB;
 
-sub alt_585_DB {
+sub alt_510_DB {
+
+    # lock the debugger and get the thread id for the prompt
+	lock($DBGR);
+	my $tid;
+	if ($ENV{PERL5DB_THREADED}) {
+		$tid = eval { "[".threads->tid."]" };
+	}
 
     # Check for whether we should be running continuously or not.
     # _After_ the perl program is compiled, $single is set to 1:
@@ -176,8 +173,8 @@ EOP
             $term || &setterm;
             print_help(<<EOP);
 Debugged program terminated.  Use B<q> to quit or B<R> to restart,
-  use B<O> I<inhibit_exit> to avoid stopping after program termination,
-  B<h q>, B<h R> or B<h O> to get additional info.  
+  use B<o> I<inhibit_exit> to avoid stopping after program termination,
+  B<h q>, B<h R> or B<h o> to get additional info.  
 EOP
 
             # Set the DB::eval context appropriately.
@@ -186,7 +183,6 @@ EOP
                 '($@, $!, $^E, $,, $/, $\, $^W) = @saved;'
               . "package $package;";    # this won't let them modify, alas
         } ## end elsif ($package eq 'DB::fake')
-
 
         else {
 
@@ -251,7 +247,6 @@ EOP
         } ## end else [ if ($slave_editor)
     } ## end if ($single || ($trace...
 
-
     # If there's an action, do it now.
     $evalarg = $action, &eval if $action;
 
@@ -296,7 +291,7 @@ EOP
             # ... and we got a line of command input ...
             defined(
                 $cmd = &readline(
-                        "$pidprompt  DB"
+                        "$pidprompt $tid DB"
                       . ( '<' x $level )
                       . ( $#hist + 1 )
                       . ( '>' x $level ) . " "
@@ -305,6 +300,7 @@ EOP
           )
         {
 
+			share($cmd);
             # ... try to execute the input as debugger commands.
 
             # Don't stop running.
@@ -324,6 +320,8 @@ EOP
             chomp($cmd);    # get rid of the annoying extra newline
             push( @hist, $cmd ) if length($cmd) > 1;
             push( @truehist, $cmd );
+			share(@hist);
+			share(@truehist);
 
             # This is a restart point for commands that didn't arrive
             # via direct user input. It allows us to 'redo PIPE' to
@@ -353,16 +351,16 @@ EOP
                     }
                 } ## end if ($alias{$i})
 
-### Extended commands
+                ### Extended commands
 
-### Define your extended commands in C<%commands> at the top of the file.
-### This section runs them.
+                ### Define your extended commands in C<%commands> at the top of the file.
+                ### This section runs them.
 
-               foreach my $do (keys %DB::commands) {
+                foreach my $do (keys %DB::commands) {
                  next unless $cmd =~ /^$do\s*/;
                  $commands{$do}->($cmd) and next CMD;
                  #  ? next CMD : last CMD;
-               }
+                }
 
                 $cmd =~ /^q$/ && do {
                     $fall_off_end = 1;
@@ -400,9 +398,7 @@ EOP
                     next CMD;
                 };
 
-
                 $cmd =~ s/^X\b/V $package/;
-
 
                 # Bare V commands get the currently-being-debugged package
                 # added.
@@ -423,7 +419,7 @@ EOP
                     @vars     = split( ' ', $2 );
 
                     # If main::dumpvar isn't here, get it.
-                    do 'dumpvar.pl' unless defined &main::dumpvar;
+                    do 'dumpvar.pl' || die $@ unless defined &main::dumpvar;
                     if ( defined &main::dumpvar ) {
 
                         # We got it. Turn off subroutine entry/exit messages
@@ -554,11 +550,10 @@ EOP
 
                 # All of these commands were remapped in perl 5.8.0;
                 # we send them off to the secondary dispatcher (see below).
-                $cmd =~ /^([aAbBhilLMoOPvwW]\b|[<>\{]{1,2})\s*(.*)/so && do {
+                $cmd =~ /^([aAbBeEhilLMoOPvwW]\b|[<>\{]{1,2})\s*(.*)/so && do {
                     &cmd_wrapper( $1, $2, $line );
                     next CMD;
                 };
-
 
                 $cmd =~ /^y(?:\s+(\d*)\s*(.*))?$/ && do {
 
@@ -572,7 +567,7 @@ EOP
                       and next CMD;
 
                     # Load up dumpvar if we don't have it. If we can, that is.
-                    do 'dumpvar.pl' unless defined &main::dumpvar;
+                    do 'dumpvar.pl' || die $@ unless defined &main::dumpvar;
                     defined &main::dumpvar
                       or print $OUT "dumpvar.pl not available.\n"
                       and next CMD;
@@ -699,7 +694,7 @@ EOP
                     # sure that the line specified really is breakable.
                     #
                     # On the other hand, if there was a subname supplied, the
-                    # preceeding block has moved us to the proper file and
+                    # preceding block has moved us to the proper file and
                     # location within that file, and then scanned forward
                     # looking for the next executable line. We have to make
                     # sure that one was found.
@@ -1112,6 +1107,24 @@ EOP
                 $cmd =~ /^(R|rerun\s*(.*))$/ && do {
                     my @args = ($1 eq 'R' ? restart() : rerun($2));
 
+                    # Close all non-system fds for a clean restart.  A more
+                    # correct method would be to close all fds that were not
+                    # open when the process started, but this seems to be
+                    # hard.  See "debugger 'R'estart and open database
+                    # connections" on p5p.
+
+                    my $max_fd = 1024; # default if POSIX can't be loaded
+                    if (eval { require POSIX }) {
+                        $max_fd = POSIX::sysconf(POSIX::_SC_OPEN_MAX());
+                    }
+
+                    if (defined $max_fd) {
+                        foreach ($^F+1 .. $max_fd-1) {
+                            next unless open FD_TO_CLOSE, "<&=$_";
+                            close(FD_TO_CLOSE);
+                        }
+                    }
+
                     # And run Perl again.  We use exec() to keep the
                     # PID stable (and that way $ini_pids is still valid).
                     exec(@args) || print $OUT "exec failed: $!\n";
@@ -1202,14 +1215,15 @@ EOP
                 $onetimedumpDepth = undef;
             }
             elsif ( $term_pid == $$ ) {
-                STDOUT->flush();
-                STDERR->flush();
+		eval {		# May run under miniperl, when not available...
+                    STDOUT->flush();
+                    STDERR->flush();
+		};
 
                 # XXX If this is the master pid, print a newline.
                 print $OUT "\n";
             }
         } ## end while (($term || &setterm...
-
 
         continue {    # CMD:
 
@@ -1291,7 +1305,7 @@ __END__
 
 =head1 NAME
 
-Devel::Command::DBSub::DB_5_8_5 - Devel::Command debugger patch for 5.8.5 and up
+Devel::Command::DBSub::DB_5_10 - Devel::Command debugger patch for 5.10
 
 =head1 SYNOPSIS
 
@@ -1300,12 +1314,12 @@ Devel::Command::DBSub::DB_5_8_5 - Devel::Command debugger patch for 5.8.5 and up
 
 =head1 DESCRIPTION
 
-C<Devel::Command::DBSub::DB_5_8_5> loads a patched version of the debugger's
-C<DB()> routine that will work with Perl 5.8.0 through Perl 5.8.5.
+C<Devel::Command::DBSub::DB_5_10> loads a patched version of the debugger's
+C<DB()> routine that will work with Perl 5.10.
 
-=head2 alt_585_DB
+=head2 alt_510_DB
 
-This subroutine is essentially a copy of the 5.8.5 DB::DB function, with the code
+This subroutine is essentially a copy of the 5.10 DB::DB function, with the code
 necessary to pick up custom functions patched in.
 
 =head1 NOTE
@@ -1332,6 +1346,4 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.6 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut
-

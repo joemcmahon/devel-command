@@ -1,11 +1,15 @@
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Devel-Command
-version:      0.08
-version_from: lib/Devel/Command.pm
-installdirs:  site
-requires:
-    Test::More:                    0
+--- #YAML:1.0
+name:                Devel-Command
+version:             0.09
+abstract:            ~
+license:             ~
+author:              
+    - Joe McMahon <mcmahon@cpan.org>
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
     Module::Pluggable:             0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.12
+    Test::More:                    0
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

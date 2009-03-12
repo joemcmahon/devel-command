@@ -1003,7 +1003,8 @@ Devel::Command::DBSub::DB_5_6.pm  - Perl 5.6 debugger patch
 
 =head1 SYNOPSIS
 
-  use Devel::Command; # in .perldb
+  # in .perldb
+  use Devel::Command; 
 
 =head1 DESCRIPTION
 
@@ -1013,6 +1014,11 @@ work for any sub-version of Perl 5.6.
 
 The C<import> subroutine in this module determines whether or not the 
 perl we're running under is perl 5.6.x or not.
+
+=head2 alt_56_DB
+
+This subroutine is essentially a copy of the 5.6 DB::DB function, with the code
+necessary to pick up custom functions patched in.
 
 =head1 SEE ALSO
 
@@ -1034,4 +1040,3 @@ at your option, any later version of Perl 5 you may have available.
 
 
 =cut
-

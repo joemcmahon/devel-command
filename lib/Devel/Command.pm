@@ -1,15 +1,18 @@
 package Devel::Command;
 use strict;
 use warnings;
+use Data::Dumper;
 
 use Module::Pluggable search_path=>["Devel::Command"], require=>1;
 use Module::Pluggable search_path=>['Devel::Command::DBSub'], 
                       sub_name => 'DB_subs';
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub import {
   # Find and install all the plugins.
+  # Uncomment the following line to verify plugin/patch loading in the debugger.
+  # $DB::single=1;
   my @plugins = __PACKAGE__->plugins;
   foreach my $plugin (@plugins) {
     # Skip patch plugins.
@@ -39,8 +42,10 @@ sub import {
   {
     no warnings 'redefine';
     my $patch;
+    print STDERR map {"# $_"} Dumper(__PACKAGE__->DB_subs());
     foreach my $DB_module (__PACKAGE__->DB_subs) {
       my $subref;
+      warn "# Trying " .Dumper($DB_module);
       if ($subref = $DB_module->import()) {
         # This module could work for the current Perl.
         $patch = [$subref, $DB_module];

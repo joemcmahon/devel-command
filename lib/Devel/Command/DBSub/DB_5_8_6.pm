@@ -1,10 +1,18 @@
 package Devel::Command::DBSub::DB_5_8_6;
 
 sub import {
-  # $] must be greater than 5.8.5, but still a 5.8 Perl
-  $] > 5.008005 and $] =~ /^5\.008/
-    ? \&DB::alt_586_DB
-    : undef;
+  # Includes 5.8.6, 5.8.7 and 5.8.8.
+  # Also includes 5.9.2, 5.9.3 and 5.9.4.
+  if( $] gt "5.008005" or 
+      ( $] gt "5.009001" and
+        $] lt "5.009005"
+      ) 
+    ) {
+    return \&DB::alt_586_DB;
+  }
+  else {
+    return;
+  }
 }
 
 {
@@ -171,7 +179,7 @@ EOP
             $term || &setterm;
             print_help(<<EOP);
 Debugged program terminated.  Use B<q> to quit or B<R> to restart,
-  use B<O> I<inhibit_exit> to avoid stopping after program termination,
+  use B<o> I<inhibit_exit> to avoid stopping after program termination,
   B<h q>, B<h R> or B<h O> to get additional info.  
 EOP
 
@@ -1311,6 +1319,11 @@ Devel::Command::DBSub::DB_5_8_6 - Devel::Command debugger patch for 5.8.6 and up
 
 C<Devel::Command::DBSub::DB_5_8_6> loads a patched version of the debugger's
 C<DB()> routine that will work with Perl 5.8.6 and up.
+
+=head2 alt_586_DB
+
+This subroutine is essentially a copy of the 5.8.6 DB::DB function, with the code
+necessary to pick up custom functions patched in.
 
 =head1 NOTE
 
