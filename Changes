@@ -1,6 +1,10 @@
 Revision history for Perl extension Devel::Command.
 
-0.03  Sun Jun 26 16:02:23 2005
+0.04 Wed Aug 31 12:20:00 2005 
+	- removed Viz command to its own distribution to make
+	  it simpler to install this module
+
+003  Sun Jun 26 16:02:23 2005
 	- altered command parse code to get rid of double eval of command
         - got 'viz' command working
         - added 'cmds' command (lists commands)

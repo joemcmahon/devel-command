@@ -1,8 +1,6 @@
 Changes
 lib/Devel/Command.pm
 lib/Devel/Command/HelloWorld.pm
-lib/Devel/Command/Tdump.pm
-lib/Devel/Command/Viz.pm
 Makefile.PL
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)

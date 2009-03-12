@@ -39,6 +39,19 @@ C<Devel::Command::HelloWorld> is an example command plugin for Devel::Command.
 It demonstrates the basic code needed to implement a command that will automatically
 be loaded and installed by Devel::Command.
 
+=head1 IMPLEMENTATION
+
+=head2 command
+
+This example command follows the standard way of implmenting a 
+C<Devel::Command> command; it subclasses the base C<Devel::Command>
+module, and implements a C<command> subroutine. This is all that is
+necessary for C<Devel::Command> to find and install the command.
+
+This drastically simplifies the code needed to implement a command;
+as long as a C<sub command> is defined, everything else is taken care
+of automatically.
+
 =head1 SEE ALSO
 
 C<perl5db.pl>, C<Devel::Command>

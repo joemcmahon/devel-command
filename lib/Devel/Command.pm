@@ -1,29 +1,59 @@
 package Devel::Command;
-use 5.006;
 use strict;
 use warnings;
 
 use Module::Pluggable search_path=>["Devel::Command"], require=>1;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
+
+=head1 ROUTINES
+
+=head2 import
+
+C<import> finds all of the command plugins for this package
+(i.e., any module in the C<Devel::Command::> namespace),
+calls the module's C<signature> method to get the name of
+the command and its entry point, and then exports our
+C<eval> subroutine into the command's namespace.
+
+Finally, it overrides the debugger's C<DB::DB()>
+subroutine with our own patched version of that routine.
+
+=cut
 
 sub import {
+  # Find and install all the plugins.
   my @plugins = __PACKAGE__->plugins;
   foreach my $plugin (@plugins) {
+    # get the signature (name, entry point).
     my($cmd_name, $cmd_ref) = $plugin->signature();
+
+    # Install the command in our lookup table.
     $DB::commands{$cmd_name} = $cmd_ref;
+
+    # Export our eval into the plugin.
     {
       no  strict 'refs';
       *{$plugin."::eval"} = \&eval;
     }
   }
+
+  # Add our local 'cmds' command to the table.
   $DB::commands{"cmds"} = \&cmds;
-  my $count = scalar @plugins;
+
+  # Install the alternate version of DB::DB.  
   {
     no warnings;
     *DB::DB = \&DB::alt_DB;
   }
 }
+
+=head2 cmds
+
+A new debugger command to list the commands
+installed by C<Devel::Command>.
+
+=cut 
 
 sub cmds {
   for my $key (keys %DB::commands) {
@@ -32,6 +62,15 @@ sub cmds {
   1;
 }
 
+=head2 afterinit
+
+Does any necessary initialization for a 
+debugger command module. Gets run after the
+debugger has initialized, but before the
+initial prompt.
+
+=cut
+
 sub DB::afterinit {
   my @plugins = __PACKAGE__->plugins;
   foreach my $plugin (@plugins) {
@@ -39,22 +78,68 @@ sub DB::afterinit {
   }
 }
 
-# subs exported into plugins
+=head1 EXPORTED INTO PLUGINS
+
+=head2 eval
+
+This routine is explicitly exported into the 
+plugins so that they have access to the debugger's
+C<eval> routine. Note that it is not simply 
+parameterized by a straight sub call, but 
+by setting a special debugger package global.
+
+=cut
+
 sub eval {
   my  $arg = shift;
   $DB::evalarg = $arg;
   DB::eval();
 }
 
+=head1 INHERITED BY SUBCLASSES
 
-# subs inherited by subclasses
+=head2 signature
+
+The C<signature> method is common to all subclasses
+and is needed to handle the interfacing to this
+command. The default method returns a best-guess
+name for the command and a reference to the 
+C<command()> subroutine in the command package.
+
+Note that subclasses are free to override this method
+and do anything they please as long as it returns
+a name and a subroutine reference.
+
+=cut
+
 sub signature {
   my $class = shift;
+  # Generate a command name based on the name
+  # of this plugin (the final qualifier),
+  # lowercased. Assumes that the actual
+  # code to execute the command is in a 
+  # sub named 'command' in that package.
   (lc(substr($class,rindex($class,'::')+2)), 
    eval "\\&".$class."::command");
 }
 
-# our alternative to DB::DB
+=head1 ALTERNATE DB::DB
+
+This code replaces the existing C<DB::DB> at runtime.
+This code is loaded during the debugger's C<afterinit>
+phase, so all of the debugger code has been compiled and
+all of the data structures initialized.
+
+All we do is redefine the subroutine as it exists in the
+original debugger code, adding a command hook to check our
+command table before passing the command line on to the
+debugger.
+
+If you're browsing the source, search for the string
+COMMAND ALIASES to find the hook code.
+
+=cut
+
 {
 no strict;
 no warnings;
