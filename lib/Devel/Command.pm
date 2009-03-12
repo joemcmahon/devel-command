@@ -4,7 +4,7 @@ use warnings;
 
 use Module::Pluggable search_path=>["Devel::Command"], require=>1;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 ROUTINES
 

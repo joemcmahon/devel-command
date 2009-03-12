@@ -1,5 +1,8 @@
 Revision history for Perl extension Devel::Command.
 
+0.05 Thu Sep  8 17:19:21 2005
+	- Added pod and pod coverage tests
+
 0.04 Wed Aug 31 12:20:00 2005 
 	- removed Viz command to its own distribution to make
 	  it simpler to install this module
