@@ -1298,6 +1298,12 @@ Devel::Command::DBSub::DB_5_8_5 - Devel::Command debugger patch for 5.8.5 and up
 C<Devel::Command::DBSub::DB_5_8_5> loads a patched version of the debugger's
 C<DB()> routine that will work with Perl 5.8.0 through Perl 5.8.5.
 
+=head1 NOTE
+
+The POD documentation was removed from this subroutine to prevent this 
+documentation becoming confusing. If you want real docs on how the debugger
+works, see C<perldoc perl5db.pl>.
+
 =head1 SEE ALSO
 
 C<perl5db.pl>, notably the documentation for the C<DB::DB> subroutine.

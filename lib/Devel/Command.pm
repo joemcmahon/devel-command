@@ -3,9 +3,10 @@ use strict;
 use warnings;
 
 use Module::Pluggable search_path=>["Devel::Command"], require=>1;
-use Module::Pluggable search_path =>['Devel::Command::DBSub'], sub_name => 'DB_subs';
+use Module::Pluggable search_path=>['Devel::Command::DBSub'], 
+                      sub_name => 'DB_subs';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub import {
   # Find and install all the plugins.
@@ -14,11 +15,15 @@ sub import {
     # Skip patch plugins.
     next if $plugin =~ /^Devel::Command::DBSub/;
 
-    # get the signature (name, entry point).
-    my($cmd_name, $cmd_ref) = $plugin->signature();
+    # get the signature(s) (name, entry point).
+    my(@signatures) = $plugin->signature();
 
-    # Install the command in our lookup table.
-    $DB::commands{$cmd_name} = $cmd_ref;
+    # Install the command(s) in our lookup table.
+    while (@signatures) {
+      my $cmd_name = shift @signatures;
+      my $cmd_ref  = shift @signatures;
+      $DB::commands{$cmd_name} = $cmd_ref;
+    }
 
     # Export our eval into the plugin.
     {

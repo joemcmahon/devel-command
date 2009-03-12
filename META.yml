@@ -1,12 +1,11 @@
-# http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Devel-Command
-version:      0.07
+version:      0.08
 version_from: lib/Devel/Command.pm
 installdirs:  site
 requires:
-    Module::Pluggable:             0
     Test::More:                    0
+    Module::Pluggable:             0
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.28
+generated_by: ExtUtils::MakeMaker version 6.12
