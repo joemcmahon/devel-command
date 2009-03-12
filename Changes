@@ -1,5 +1,11 @@
 Revision history for Perl extension Devel::Command.
 
+0.07 Mon Jan 23 13:26:02 PST 2006
+	- Added 5.6 support
+        - Reluctantly removed the POD from the 5.8 debugger code
+        - Extracted the humongous debugger patch from the main module
+	- Debugger *patches* are now also pluggable
+
 0.06 Mon Oct  3 14:14:42 2005 
 	- Added pod and pod coverage tests to MANIFEST
  	  so they actually got distributed

@@ -1,13 +1,8 @@
-Devel-Command version 0.04
+Devel-Command version 0.07
 ==========================
 
 Devel::Command is used to automatically find and load debugger command
-extension modules. It provides functions to allow these modules to register 
-themselves in the debugger %DB::commands global. 
-
-It also provides a sample .perldb containing a modified version of the
-debugger's DB::DB subroutine, altered to provide the necessary command 
-hooks.
+extension modules, automatically patching the debugger to enable them.
 
 INSTALLATION
 
@@ -32,15 +27,14 @@ This module requires these other modules and libraries:
 
 Module::Pluggable, Test::More
 
-The substitute debugger command loop contained in this module
-is compatible with Perl 5.8.6; it may or may not work with
-earlier or later Perls. If this module is of use to you, please
-write to me; I will lobby to have this functionality be part of
-the core debugger if there's enough interest.
+The debugger patch plugins provided with this version of Devel::Command
+will handle any version of Perl 5.6 and Perl 5.8. If your Perl is not
+supported by this module, and it can handle Module::Pluggable, please
+write me at mcmahon@cpan.org and I will create a new patch module for it.
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2005 by Joe McMahon
+Copyright (C) 2005, 2006 by Joe McMahon
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.6 or,
