@@ -1,0 +1,8 @@
+Changes
+lib/Devel/Command.pm
+lib/Devel/Command/HelloWorld.pm
+Makefile.PL
+MANIFEST
+README
+t/Devel-Command.t
+META.yml                                 Module meta-data (added by MakeMaker)
