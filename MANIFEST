@@ -6,3 +6,5 @@ MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
 t/Devel-Command.t
+t/pod-coverage.t
+t/pod.t

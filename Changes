@@ -1,5 +1,9 @@
 Revision history for Perl extension Devel::Command.
 
+0.06 Mon Oct  3 14:14:42 2005 
+	- Added pod and pod coverage tests to MANIFEST
+ 	  so they actually got distributed
+
 0.05 Thu Sep  8 17:19:21 2005
 	- Added pod and pod coverage tests
 
